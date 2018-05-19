@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char c;
+    char c, temp;
     fpos_t *curr_pos;
     while ((c = fgetc(program.code_stream)) != EOF) {
         switch (c) {
@@ -73,7 +73,9 @@ int main(int argc, char **argv) {
             putchar(program.tape[program.tape_pos]);
             break;
         case ',':
-            program.tape[program.tape_pos] = getchar();
+            if ((temp = getchar()) != EOF) {
+                program.tape[program.tape_pos] = temp;
+            }
             break;
         default:
             break;
