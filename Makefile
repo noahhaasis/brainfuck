@@ -2,17 +2,13 @@
 CC = gcc
 
 # flags to pass compiler
-CFLAGS = -ggdb3 -std=c11 -Wall
+CFLAGS = -std=c11 -Wall
 
 # name for executable
 EXE = brainfuck
 
 # space-separated list of header files
 HDRS = stack.h
-
-# space-separated list of libraries, if any,
-# each of which should be prefixed with -l
-LIBS =
 
 # space-separated list of source files
 SRCS = stack.c brainfuck.c
