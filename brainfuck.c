@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     };
     if (!program.code_stream) {
         fprintf(stderr, "Unable to open file %s\n", argv[1]);
+        stack_destroy(program.positions);
         return 1;
     }
 
@@ -38,6 +39,7 @@ int main(int argc, char **argv) {
             curr_pos = (fpos_t *)stack_peek(program.positions);
             if (!curr_pos) {
                 fprintf(stderr, "Error: unmatched ']'!\n");
+                fclose(program.code_stream);
                 stack_destroy_with_elements(program.positions);
                 return 1;
             }
@@ -56,6 +58,7 @@ int main(int argc, char **argv) {
         case '<':
             if (program.tape_pos == 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
+                fclose(program.code_stream);
                 stack_destroy_with_elements(program.positions);
                 return 1;
             }
@@ -64,6 +67,7 @@ int main(int argc, char **argv) {
         case '>':
             if (program.tape_pos == TAPE_LENGTH-1) {
                 fprintf(stderr, "Error: Run out of tape space!\n");
+                fclose(program.code_stream);
                 stack_destroy_with_elements(program.positions);
                 return 1;
             }
@@ -81,6 +85,7 @@ int main(int argc, char **argv) {
             break;
         }
     }
+    fclose(program.code_stream);
     stack_destroy_with_elements(program.positions);
 
     return 0;
