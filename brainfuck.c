@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     while ((c = fgetc(program.code_stream)) != EOF) {
         switch (c) {
         case '[':
-            curr_pos = malloc(1);
+            curr_pos = malloc(sizeof(fpos_t));
             fgetpos(program.code_stream, curr_pos);
             stack_push(program.positions, curr_pos);
             break;
