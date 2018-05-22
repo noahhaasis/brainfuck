@@ -30,12 +30,12 @@ int main(int argc, char **argv) {
     fpos_t *curr_pos;
     while ((c = fgetc(program.code_stream)) != EOF) {
         switch (c) {
-        case '[':
+        case '[': // Store the current position
             curr_pos = malloc(sizeof(fpos_t));
             fgetpos(program.code_stream, curr_pos);
             stack_push(program.positions, curr_pos);
             break;
-        case ']':
+        case ']': // Jump to the lasting open bracket
             curr_pos = (fpos_t *)stack_peek(program.positions);
             if (!curr_pos) {
                 fprintf(stderr, "Error: unmatched ']'!\n");
@@ -49,13 +49,13 @@ int main(int argc, char **argv) {
                 free(stack_pop(program.positions));
             }
             break;
-        case '+':
+        case '+': // Increment
             program.tape[program.tape_pos]++;
             break;
-        case '-':
+        case '-': // Decrement
             program.tape[program.tape_pos]--;
             break;
-        case '<':
+        case '<': // Move left
             if (program.tape_pos == 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
                 fclose(program.code_stream);
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
             }
             program.tape_pos--;
             break;
-        case '>':
+        case '>': // Move right
             if (program.tape_pos == TAPE_LENGTH-1) {
                 fprintf(stderr, "Error: Run out of tape space!\n");
                 fclose(program.code_stream);
@@ -73,15 +73,15 @@ int main(int argc, char **argv) {
             }
             program.tape_pos++;
             break;
-        case '.':
+        case '.': // Output
             putchar(program.tape[program.tape_pos]);
             break;
-        case ',':
+        case ',': // Input
             if ((temp = getchar()) != EOF) {
                 program.tape[program.tape_pos] = temp;
             }
             break;
-        default:
+        default: // Everything which isn't a command is considered a comment 
             break;
         }
     }
