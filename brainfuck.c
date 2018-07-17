@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "stack.h"
 
 #define INITIAL_TAPE_LENGTH 512
@@ -80,12 +82,14 @@ int main(int argc, char **argv) {
             if (program.tape_pos >= program.tape_len) {
                 program.tape_len *= 2;
                 program.tape = realloc(program.tape, program.tape_len);
-            }
-            if (!program.tape) {
-                fprintf(stderr, "Out of memory\n");
-                fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
-                return 1;
+                if (!program.tape) {
+                    fprintf(stderr, "Out of memory\n");
+                    fclose(program.code_stream);
+                    stack_destroy_with_elements(program.positions);
+                    return 1;
+                }
+                // Initialize the new part of the tape to zero
+                memset(program.tape + program.tape_len/2, 0, program.tape_len/2);
             }
             break;
         case '.': // Output
