@@ -68,14 +68,14 @@ int main(int argc, char **argv) {
             program.tape[program.tape_pos]--;
             break;
         case '<': // Move left
-            if (program.tape_pos == 0) {
+            program.tape_pos--;
+            if (program.tape_pos < 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
                 fclose(program.code_stream);
                 stack_destroy_with_elements(program.positions);
                 free(program.tape);
                 return 1;
             }
-            program.tape_pos--;
             break;
         case '>': // Move right
             program.tape_pos++;
