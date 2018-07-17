@@ -30,7 +30,9 @@ int main(int argc, char **argv) {
     }
     if (!program.tape) {
         fprintf(stderr, "Unable to allocate a tape\n");
-        goto END;
+        fclose(program.code_stream);
+        stack_destroy_with_elements(program.positions);
+        return 1;
     }
 
     char c, temp;
@@ -48,6 +50,7 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "Error: unmatched ']'!\n");
                 fclose(program.code_stream);
                 stack_destroy_with_elements(program.positions);
+                free(program.tape);
                 return 1;
             }
             if (program.tape[program.tape_pos]) {
@@ -65,7 +68,10 @@ int main(int argc, char **argv) {
         case '<': // Move left
             if (program.tape_pos == 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
-                goto END;
+                fclose(program.code_stream);
+                stack_destroy_with_elements(program.positions);
+                free(program.tape);
+                return 1;
             }
             program.tape_pos--;
             break;
@@ -77,7 +83,9 @@ int main(int argc, char **argv) {
             }
             if (!program.tape) {
                 fprintf(stderr, "Out of memory\n");
-                goto END;
+                fclose(program.code_stream);
+                stack_destroy_with_elements(program.positions);
+                return 1;
             }
             break;
         case '.': // Output
@@ -92,9 +100,9 @@ int main(int argc, char **argv) {
             break;
         }
     }
-    END:
+
     fclose(program.code_stream);
     stack_destroy_with_elements(program.positions);
-
+    free(program.tape);
     return 0;
 }
