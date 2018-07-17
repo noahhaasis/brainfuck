@@ -9,7 +9,7 @@ typedef struct {
     FILE *code_stream;
     stack_t *positions;
     int *tape;
-    int tape_len;
+    unsigned long tape_len;
     unsigned long tape_pos;
 } program_t;
 
