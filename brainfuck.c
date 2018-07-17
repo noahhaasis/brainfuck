@@ -10,7 +10,7 @@ typedef struct {
     stack_t *positions;
     int *tape;
     int tape_len;
-    unsigned int tape_pos;
+    unsigned long tape_pos;
 } program_t;
 
 int main(int argc, char **argv) {
@@ -68,7 +68,6 @@ int main(int argc, char **argv) {
             program.tape[program.tape_pos]--;
             break;
         case '<': // Move left
-            program.tape_pos--;
             if (program.tape_pos < 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
                 fclose(program.code_stream);
@@ -76,6 +75,7 @@ int main(int argc, char **argv) {
                 free(program.tape);
                 return 1;
             }
+            program.tape_pos--;
             break;
         case '>': // Move right
             program.tape_pos++;
