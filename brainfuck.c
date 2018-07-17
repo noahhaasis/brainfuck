@@ -18,9 +18,9 @@ int main(int argc, char **argv) {
     }
 
     program_t program = {
-        fopen(argv[1], "r"), 
+        fopen(argv[1], "r"),
         stack_create(),
-        malloc(INITIAL_TAPE_LENGTH),
+        calloc(INITIAL_TAPE_LENGTH, 1),
         INITIAL_TAPE_LENGTH
     };
     if (!program.code_stream) {
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
                 program.tape[program.tape_pos] = temp;
             }
             break;
-        default: // Everything which isn't a command is considered a comment 
+        default: // Everything which isn't a command is considered a comment
             break;
         }
     }

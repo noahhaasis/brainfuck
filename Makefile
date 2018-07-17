@@ -2,7 +2,7 @@
 CC = gcc
 
 # flags to pass compiler
-CFLAGS = -std=c11 -Wall
+CFLAGS = -std=c11 -Wall -ggdb
 
 # name for executable
 EXE = brainfuck
