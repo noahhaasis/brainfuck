@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include "stack.h"
 
-#define TAPE_LENGTH 1024
+#define INITIAL_TAPE_LENGTH 512
 
 typedef struct {
     FILE *code_stream;
     stack_t *positions;
-    int tape[TAPE_LENGTH];
+    int *tape;
+    int tape_len;
     unsigned int tape_pos;
 } program_t;
 
@@ -18,12 +19,18 @@ int main(int argc, char **argv) {
 
     program_t program = {
         fopen(argv[1], "r"), 
-        stack_create()
+        stack_create(),
+        malloc(INITIAL_TAPE_LENGTH),
+        INITIAL_TAPE_LENGTH
     };
     if (!program.code_stream) {
         fprintf(stderr, "Unable to open file %s\n", argv[1]);
         stack_destroy(program.positions);
         return 1;
+    }
+    if (!program.tape) {
+        fprintf(stderr, "Unable to allocate a tape\n");
+        goto END;
     }
 
     char c, temp;
@@ -58,20 +65,20 @@ int main(int argc, char **argv) {
         case '<': // Move left
             if (program.tape_pos == 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
-                fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
-                return 1;
+                goto END;
             }
             program.tape_pos--;
             break;
         case '>': // Move right
-            if (program.tape_pos == TAPE_LENGTH-1) {
-                fprintf(stderr, "Error: Run out of tape space!\n");
-                fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
-                return 1;
-            }
             program.tape_pos++;
+            if (program.tape_pos >= program.tape_len) {
+                program.tape_len *= 2;
+                program.tape = realloc(program.tape, program.tape_len);
+            }
+            if (!program.tape) {
+                fprintf(stderr, "Out of memory\n");
+                goto END;
+            }
             break;
         case '.': // Output
             putchar(program.tape[program.tape_pos]);
@@ -85,6 +92,7 @@ int main(int argc, char **argv) {
             break;
         }
     }
+    END:
     fclose(program.code_stream);
     stack_destroy_with_elements(program.positions);
 
