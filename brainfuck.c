@@ -54,10 +54,7 @@ int main(int argc, char **argv) {
             curr_pos = (fpos_t *)stack_peek(program.positions);
             if (!curr_pos) {
                 fprintf(stderr, "Error: unmatched ']'!\n");
-                fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
-                free(program.tape);
-                return 1;
+                goto error;
             }
             if (program.tape[program.tape_pos]) {
                 fsetpos(program.code_stream, curr_pos);
@@ -74,10 +71,7 @@ int main(int argc, char **argv) {
         case '<': // Move left
             if (program.tape_pos < 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
-                fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
-                free(program.tape);
-                return 1;
+                goto error;
             }
             program.tape_pos--;
             break;
@@ -88,9 +82,7 @@ int main(int argc, char **argv) {
                 program.tape = realloc(program.tape, program.tape_len);
                 if (!program.tape) {
                     fprintf(stderr, "Out of memory\n");
-                    fclose(program.code_stream);
-                    stack_destroy_with_elements(program.positions);
-                    return 1;
+                    goto error;
                 }
                 // Initialize the new part of the tape to zero
                 memset(program.tape + program.tape_len/2, 0, program.tape_len/2);
@@ -113,4 +105,10 @@ int main(int argc, char **argv) {
     stack_destroy_with_elements(program.positions);
     free(program.tape);
     return 0;
+
+error:
+    fclose(program.code_stream);
+    stack_destroy_with_elements(program.positions);
+    free(program.tape);
+    return 1;
 }
