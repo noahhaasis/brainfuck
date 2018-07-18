@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     if (!program.tape) {
         fprintf(stderr, "Unable to allocate a tape\n");
         fclose(program.code_stream);
-        stack_destroy_with_elements(program.positions);
+        stack_destroy(program.positions);
         return 1;
     }
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
             if (program.tape_pos < 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
                 fclose(program.code_stream);
-                stack_destroy_with_elements(program.positions);
+                stack_destroy(program.positions);
                 free(program.tape);
                 return 1;
             }
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
                 if (!program.tape) {
                     fprintf(stderr, "Out of memory\n");
                     fclose(program.code_stream);
-                    stack_destroy_with_elements(program.positions);
+                    stack_destroy(program.positions);
                     return 1;
                 }
                 // Initialize the new part of the tape to zero
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     }
 
     fclose(program.code_stream);
-    stack_destroy_with_elements(program.positions);
+    stack_destroy(program.positions);
     free(program.tape);
     return 0;
 }
