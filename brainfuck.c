@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "stack.h"
 
 #define INITIAL_TAPE_LENGTH 512
@@ -7,8 +9,8 @@ typedef struct {
     FILE *code_stream;
     stack_t *positions;
     int *tape;
-    int tape_len;
-    unsigned int tape_pos;
+    unsigned long tape_len;
+    unsigned long tape_pos;
 } program_t;
 
 int main(int argc, char **argv) {
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
             program.tape[program.tape_pos]--;
             break;
         case '<': // Move left
-            if (program.tape_pos == 0) {
+            if (program.tape_pos < 0) {
                 fprintf(stderr, "Error: Cannot move beyond beginning of tape!\n");
                 fclose(program.code_stream);
                 stack_destroy(program.positions);
@@ -80,12 +82,14 @@ int main(int argc, char **argv) {
             if (program.tape_pos >= program.tape_len) {
                 program.tape_len *= 2;
                 program.tape = realloc(program.tape, program.tape_len);
-            }
-            if (!program.tape) {
-                fprintf(stderr, "Out of memory\n");
-                fclose(program.code_stream);
-                stack_destroy(program.positions);
-                return 1;
+                if (!program.tape) {
+                    fprintf(stderr, "Out of memory\n");
+                    fclose(program.code_stream);
+                    stack_destroy(program.positions);
+                    return 1;
+                }
+                // Initialize the new part of the tape to zero
+                memset(program.tape + program.tape_len/2, 0, program.tape_len/2);
             }
             break;
         case '.': // Output
