@@ -1,4 +1,6 @@
 /*
+ * A simple interpreter for the brainfuck language.
+ *
  * TODO:
  *  - Remove possible integer overflow bugs
  */
