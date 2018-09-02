@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "stack.h"
 
 #define INITIAL_TAPE_LENGTH 512
@@ -21,6 +22,9 @@ typedef struct {
 
 void skip_loop(program_t *program);
 void push_loop_start(program_t *program);
+
+/* Returns zero if everything went ok else a nonzero value */
+int resize_tape(program_t *program);
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -85,14 +89,10 @@ int main(int argc, char **argv) {
         case '>': // Move right
             program.tape_pos++;
             if (program.tape_pos >= program.tape_len) {
-                program.tape_len *= 2;
-                program.tape = realloc(program.tape, program.tape_len);
-                if (!program.tape) {
-                    fprintf(stderr, "Out of memory\n");
+                resize_tape(&program);
+                if (resize_tape(&program)) {
                     goto error;
                 }
-                // Initialize the new part of the tape to zero
-                memset(program.tape + program.tape_len/2, 0, program.tape_len/2);
             }
             break;
         case '.': // Output
@@ -140,4 +140,18 @@ void push_loop_start(program_t *program) {
     fpos_t *loop_start = malloc(sizeof(fpos_t));
     fgetpos(program->code_stream, loop_start);
     stack_push(program->positions, loop_start);
+}
+
+int resize_tape(program_t *program) {
+    if (program->tape_pos >= program->tape_len) {
+        program->tape_len *= 2;
+        program->tape = realloc(program->tape, program->tape_len);
+        // Initialize the new part of the tape to zero
+        memset(program->tape + program->tape_len/2, 0, program->tape_len/2);
+    }
+    if (!program->tape) {
+        fprintf(stderr, "Out of memory\n");
+        return -1;
+    }
+    return 0;
 }
