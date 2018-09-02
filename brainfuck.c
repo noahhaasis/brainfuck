@@ -20,6 +20,7 @@ typedef struct {
 } program_t;
 
 void skip_loop(program_t *program);
+void push_loop_start(program_t *program);
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -46,25 +47,24 @@ int main(int argc, char **argv) {
     }
 
     char c, temp;
-    fpos_t *curr_pos;
+    fpos_t *loop_start;
     while ((c = fgetc(program.code_stream)) != EOF) {
         switch (c) {
         case '[': // Jump to the matching ']' if the current cell is equal to 0
             if (!program.tape[program.tape_pos]) {
                 skip_loop(&program);
+            } else {
+                push_loop_start(&program);
             }
-            curr_pos = malloc(sizeof(fpos_t));
-            fgetpos(program.code_stream, curr_pos);
-            stack_push(program.positions, curr_pos);
             break;
-        case ']': // Jump to the lasting open bracket
-            curr_pos = (fpos_t *)stack_peek(program.positions);
-            if (!curr_pos) {
+        case ']': // Jump to the matching open bracket
+            loop_start = (fpos_t *)stack_peek(program.positions);
+            if (!loop_start) {
                 fprintf(stderr, "Error: unmatched ']'!\n");
                 goto error;
             }
             if (program.tape[program.tape_pos]) {
-                fsetpos(program.code_stream, curr_pos);
+                fsetpos(program.code_stream, loop_start);
             } else {
                 free(stack_pop(program.positions));
             }
@@ -134,4 +134,10 @@ void skip_loop(program_t *program) {
         }
     }
     fgetc(program->code_stream);
+}
+
+void push_loop_start(program_t *program) {
+    fpos_t *loop_start = malloc(sizeof(fpos_t));
+    fgetpos(program->code_stream, loop_start);
+    stack_push(program->positions, loop_start);
 }
