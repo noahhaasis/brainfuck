@@ -19,6 +19,8 @@ typedef struct {
     unsigned long tape_pos;
 } program_t;
 
+void skip_loop(program_t *program);
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         printf("Usage: ./brainfuck <program>\n");
@@ -47,7 +49,10 @@ int main(int argc, char **argv) {
     fpos_t *curr_pos;
     while ((c = fgetc(program.code_stream)) != EOF) {
         switch (c) {
-        case '[': // Store the current position
+        case '[': // Jump to the matching ']' if the current cell is equal to 0
+            if (!program.tape[program.tape_pos]) {
+                skip_loop(&program);
+            }
             curr_pos = malloc(sizeof(fpos_t));
             fgetpos(program.code_stream, curr_pos);
             stack_push(program.positions, curr_pos);
@@ -113,4 +118,20 @@ error:
     stack_destroy_with_elements(program.positions);
     free(program.tape);
     return 1;
+}
+
+void skip_loop(program_t *program) {
+    int unclosed_scopes_count = 1;
+    for (;;) {
+        char c = fgetc(program->code_stream);
+        if (c == '[') {
+            unclosed_scopes_count++;
+        } else if(c == ']') {
+            unclosed_scopes_count--;
+        }
+        if (unclosed_scopes_count == 0) {
+            break;
+        }
+    }
+    fgetc(program->code_stream);
 }
