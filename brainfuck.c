@@ -23,7 +23,7 @@ typedef struct {
 void skip_loop(program_t *program);
 void push_loop_start(program_t *program);
 
-/* Returns zero if everything went ok else a nonzero value */
+/* Returns zero on success. */
 int resize_tape(program_t *program);
 
 int main(int argc, char **argv) {
