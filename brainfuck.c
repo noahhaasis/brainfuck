@@ -27,9 +27,10 @@ void push_loop_start(program_t *program);
 int resize_tape(program_t *program);
 
 int main(int argc, char **argv) {
+    int return_code = EXIT_FAILURE;
     if (argc != 2) {
         printf("Usage: ./brainfuck <program>\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     program_t program = {
@@ -41,13 +42,13 @@ int main(int argc, char **argv) {
     if (!program.code_stream) {
         fprintf(stderr, "Unable to open file %s\n", argv[1]);
         stack_destroy(program.positions);
-        return 1;
+        return EXIT_FAILURE;
     }
     if (!program.tape) {
         fprintf(stderr, "Unable to allocate a tape\n");
         fclose(program.code_stream);
         stack_destroy(program.positions);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     char c, temp;
@@ -107,17 +108,13 @@ int main(int argc, char **argv) {
             break;
         }
     }
-
-    fclose(program.code_stream);
-    stack_destroy_with_elements(program.positions);
-    free(program.tape);
-    return 0;
+    return_code = EXIT_SUCCESS;
 
 error:
     fclose(program.code_stream);
     stack_destroy_with_elements(program.positions);
     free(program.tape);
-    return 1;
+    return return_code;
 }
 
 void skip_loop(program_t *program) {
