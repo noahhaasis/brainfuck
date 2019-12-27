@@ -119,15 +119,12 @@ error:
 
 void skip_loop(program_t *program) {
     int unclosed_scopes_count = 1;
-    for (;;) {
+    while (unclosed_scopes_count > 0) {
         char c = fgetc(program->code_stream);
         if (c == '[') {
             unclosed_scopes_count++;
         } else if(c == ']') {
             unclosed_scopes_count--;
-        }
-        if (unclosed_scopes_count == 0) {
-            break;
         }
     }
     fgetc(program->code_stream);
